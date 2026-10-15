@@ -1,0 +1,165 @@
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400&display=swap">
+
+<style>
+.kup-master {
+  width: 100%;
+  margin: 0;
+  padding: 56px clamp(20px, 4vw, 80px);
+  background: #011961;
+  color: #fff;
+  font-family: 'Roboto Condensed', 'Arial Narrow', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.kup-master, .kup-master * { box-sizing: border-box; }
+.kup-master ::selection { background: #fff; color: #011961; }
+.kup-master .kup-master__wrap {
+  width: 100%; max-width: 1440px; margin: 0 auto; text-align: center;
+}
+.kup-master .kup-master__title {
+  margin: 0; padding: 0; color: #fff; font-family: inherit;
+  font-size: clamp(26px, 2.65vw, 42px); font-weight: 400;
+  line-height: 1.25; letter-spacing: 0; text-transform: uppercase;
+}
+.kup-master .kup-master__link,
+.kup-master .kup-master__link:visited,
+.kup-master .kup-master__link:hover,
+.kup-master .kup-master__link:active,
+.kup-master .kup-master__link:focus {
+  color: #fff !important; font: inherit;
+  text-decoration: none !important; border: none;
+  background: transparent; box-shadow: none;
+}
+.kup-master .kup-master__link {
+  display: block; padding: 12px 0; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.kup-master .kup-master__row { display: block; }
+.kup-master .kup-master__row + .kup-master__row { margin-top: 10px; }
+.kup-master .kup-master__text {
+  position: relative; display: inline-block; max-width: 100%; padding-bottom: 7px;
+}
+/* Отдельная линия не зависит от оформления ссылок в Тильде. */
+.kup-master .kup-master__text::after {
+  content: ''; position: absolute; right: 0; bottom: 0; left: 0;
+  height: 2px; background: #6b1f2a;
+  transform: scaleX(0); transform-origin: center;
+  transition: transform .3s cubic-bezier(.16, 1, .3, 1);
+  pointer-events: none;
+}
+@media (hover: hover) {
+  .kup-master .kup-master__link:hover .kup-master__text::after { transform: scaleX(1); }
+}
+.kup-master .kup-master__link:focus-visible { outline: 2px solid #fff; outline-offset: 6px; }
+.kup-master .kup-master__link:focus-visible .kup-master__text::after,
+.kup-master .kup-master__link:active .kup-master__text::after { transform: scaleX(1); }
+.kup-master .kup-master__description {
+  margin: 18px auto 0; padding: 0; color: #fff; font-family: inherit;
+  font-size: clamp(19px, 1.7vw, 24px); font-weight: 400;
+  line-height: 1.5; text-align: center;
+}
+.kup-master .kup-master__university { display: block; }
+@media (max-width: 700px) {
+  .kup-master { padding: 36px 16px; }
+  .kup-master .kup-master__title { font-size: clamp(17px, 4.8vw, 30px); }
+  .kup-master .kup-master__row:first-child .kup-master__text { white-space: nowrap; }
+  .kup-master .kup-master__row + .kup-master__row { margin-top: 12px; text-wrap: balance; }
+  .kup-master .kup-master__description { margin-top: 16px; font-size: 19px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kup-master .kup-master__text::after { transition: none; }
+}
+</style>
+
+<section class="kup-master" aria-label="Магистерская программа">
+  <div class="kup-master__wrap">
+    <h2 class="kup-master__title">
+      <!-- Вставьте адрес страницы между кавычками в href="". -->
+      <a class="kup-master__link" href="">
+        <span class="kup-master__row">
+          <span class="kup-master__text">МАГИСТЕРСКАЯ ПРОГРАММА</span>
+        </span>
+        <span class="kup-master__row">
+          <span class="kup-master__text">«ЮРИСТ В СФЕРЕ УГОЛОВНОГО СУДОПРОИЗВОДСТВА»</span>
+        </span>
+      </a>
+    </h2>
+    <p class="kup-master__description">
+      Программа, реализуемая кафедрой уголовного права
+      <span class="kup-master__university">РГУП им. В.М. Лебедева</span>
+    </p>
+  </div>
+</section>
+
+<script>
+(function () {
+  'use strict';
+
+  function initPrograms() {
+    document.querySelectorAll('.kup-master').forEach(function (section) {
+      if (section.dataset.kupScrollAnimation === 'ready') return;
+      var description = section.querySelector('.kup-master__description');
+      var link = section.querySelector('.kup-master__link');
+      if (!description) return;
+      section.dataset.kupScrollAnimation = 'ready';
+
+      if (link) {
+        if ((link.getAttribute('href') || '').trim()) {
+          link.removeAttribute('aria-disabled');
+        } else {
+          link.setAttribute('aria-disabled', 'true');
+        }
+        link.addEventListener('click', function (event) {
+          if (!(link.getAttribute('href') || '').trim()) event.preventDefault();
+        });
+      }
+
+      var motion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)');
+      if (!motion || !('IntersectionObserver' in window) ||
+          typeof description.animate !== 'function') return;
+
+      var animation = null;
+      var observer;
+      function cancelAnimation() {
+        if (animation) {
+          animation.cancel();
+          animation = null;
+        }
+      }
+      try {
+        observer = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            cancelAnimation();
+            if (!entry.isIntersecting || motion.matches) return;
+            animation = description.animate([
+              { opacity: 0, transform: 'translateY(32px)' },
+              { opacity: 1, transform: 'translateY(0)' }
+            ], {
+              duration: 1000,
+              easing: 'cubic-bezier(.16, 1, .3, 1)',
+              fill: 'none'
+            });
+          });
+        }, { threshold: 0, rootMargin: '0px 0px -24px 0px' });
+        observer.observe(description);
+        function onMotionChange() {
+          if (motion.matches) cancelAnimation();
+        }
+        if (motion.addEventListener) motion.addEventListener('change', onMotionChange);
+        else if (motion.addListener) motion.addListener(onMotionChange);
+      } catch (error) {
+        cancelAnimation();
+        if (observer) observer.disconnect();
+      }
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPrograms, { once: true });
+  } else {
+    initPrograms();
+  }
+  window.addEventListener('load', initPrograms, { once: true });
+  if (typeof window.t_onReady === 'function') window.t_onReady(initPrograms);
+  window.setTimeout(initPrograms, 500);
+})();
+</script>
